@@ -10,7 +10,7 @@
         roundRadii: 25,//圆环半径
         backgroundColor: "#333",//背景色
         color: "#FFFFFF",//圆环颜色
-        nineBox: [1, 5, 3],//密码数组
+        nineBox: [1, 8, 3],//密码数组
         errorColor: '#FF0000',//解锁失败锁环颜色
         boxTimer: 1000,//错误时清除记录间隔
         lineColor: '#5B8FEF',//线颜色
@@ -48,7 +48,9 @@
                 "height": this.options.height,
                 "backgroundColor": this.options.backgroundColor,
                 "zindex": this.options.zindex,
-                "-webkitUserDrag": "none"
+                "overflow": "hidden",
+                "position": "relative",
+                "webkitUserDrag": "none"
             }).append(this.buildBox());
             this.lineArray = [];
             this.selectedArray = [];
@@ -60,7 +62,7 @@
                 return;
             }
             var temp = $(document.createDocumentFragment());
-            var imargin = this.options.roundRadii - this.options.pointRadii - 3;
+            var imargin = this.options.roundRadii - this.options.pointRadii - 2;
             for (var i = 0; i < 9; i++) {
                 var dbox = $(document.createElement("li")).css({
                     cursor: "pointer",
@@ -76,6 +78,7 @@
                 });
                 var ibox = $(document.createElement("span")).css({
                     border: "1px solid " + this.options.color,
+                    boxSizing: "border-box",
                     width: this.options.pointRadii * 2,
                     height: this.options.pointRadii * 2,
                     borderRadius: this.options.pointRadii,
@@ -85,7 +88,7 @@
                 });
                 temp.append(dbox.append(ibox));
             }
-            return temp.append("<div style='clear:left'></div>");
+            return temp;
         },
         _addMouseDownEvent: function () {
             var _this = this;
@@ -109,7 +112,7 @@
                 }
                 var lis = _this.ele.find("li"), pwd = [];
                 for (var i = 0; i < _this.selectedArray.length; i++) {
-                    pwd.push(lis.index(_this.selectedArray[i]));
+                    pwd.push(lis.index(_this.selectedArray[i]) + 1);
                 }
                 if (_this.options.nineBox.toString() == pwd.toString()) { //如果成功解锁
                     if (typeof _this.options.onSuc == "function") {
@@ -117,12 +120,14 @@
                     }
                     _this.removeLine();
                     for (var i = 0; i < _this.selectedArray.length; i++) {
-                        $(_this.selectedArray[i]).removClass('ninebox-selected')
+                        $(_this.selectedArray[i]).removeClass('ninebox-selected')
                             .css("border-color", _this.options.color).find("span").css({
                                 "background": "none",
                                 "borderColor": _this.options.color
                             });
                     }
+                    _this.selectedArray = [];
+                    _this.nineBoxMouseDown = false;
                 } else {
                     if (typeof _this.options.onError == "function") {
                         _this.options.onError();
@@ -151,57 +156,43 @@
                     }, _this.options.boxTimer);
                 }
                 _this.ele.off("mouseup");
+                _this.ele.off("mousemove");
                 _this.ele.off("mouseover");
             });
         },
         _addMouseOverEvent: function () {
             var _this = this;
-            _this.ele.on("mouseover", "li", function () {
+            _this.ele.on("mouseover", "li", function (e) {
+                _this.nineBoxMouseOver = true;
                 var _subthis = this;
+                var from = $(_this.selectedArray[_this.selectedArray.length - 1]);
                 if (!_this.nineBoxMouseDown || $(_subthis).hasClass('ninebox-selected')) {
                     return;
                 }
                 $(_subthis).addClass('ninebox-selected').css('border-color', _this.options.lineColor);
+                _this._createline(from.position(), $(_subthis).position());
+                from.find("span").css({
+                    "backgroundColor": _this.options.lineColor,
+                    "borderColor": _this.options.lineColor
+                });
+                $(_subthis).find("span").css({
+                    "backgroundColor": _this.options.lineColor,
+                    "borderColor": _this.options.lineColor
+                });
                 _this.selectedArray.push(_subthis);
-                _this._createline($(_this.selectedArray[_this.selectedArray.length - 2]), $(_subthis));
+                _this.nineBoxMouseOver = false;
             });
         },
-        _createline: function (from, to) {
+        _createline: function (p1, p2, moveLine) {
             this.isIE = !$.support.leadingWhitespace;
-            this.p1 = from.position();
-            this.p2 = to.position();
 
-            var x1 = this.p1.left, y1 = this.p1.top, x2 = this.p2.left, y2 = this.p2.top;
+            var x1 = p1.left, y1 = p1.top, x2 = p2.left, y2 = p2.top;
             var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)),
                 angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-            //修正偏转导致的偏移 inexactitude
-            if (angle == 90) {//上下
-                x1 = x1 - this.options.lineWidth / 2;
-                y1 = y1 - this.options.lineWidth / 2;
-            } else if (angle == 180) { //右左
-                x1 = x1 - this.options.lineWidth / 2;
-                y1 = y1 - this.options.lineWidth * 3 / 2;
-            } else if (angle == -90) {   //下上
-                x1 = x1 + this.options.lineWidth / 2;
-                y1 = y1 - this.options.lineWidth * 3 / 2;
-            } else if (angle == 0) {   //左右
-                x1 = x1 + this.options.lineWidth / 2;
-                y1 = y1 - this.options.lineWidth / 2;
-            } else if (angle < -90) {
-                // x1 = x1;
-                y1 = y1 - this.options.lineWidth * 3 / 2;
-            } else if (angle > -90 && angle < 0) {
-                x1 = x1 + this.options.lineWidth;
-                y1 = y1 - this.options.lineWidth;
-            } else if (angle > 90 && angle < 180) {
-                x1 = x1 - this.options.lineWidth / 2;
-                y1 = y1 - this.options.lineWidth;
-            } else {
-                x1 = x1 - this.options.lineWidth / 2;
-                y1 = y1 - this.options.lineWidth;
-            }
-            x1 += this.options.width / 6;
-            y1 += this.options.width / 6;
+            var cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
+            x1 = cx - length / 2 + this.options.width / 6;
+            y1 = cy - this.options.lineWidth / 2 + this.options.width / 6;
+
             var transform = "";
             if (this.isIE) {
                 transform = "filter:progid:DXImageTransform.Microsoft.Matrix(M11=" + Math.cos(angle) +
@@ -211,21 +202,18 @@
                 transform += "transform:rotate(" + angle + "deg);-webkit-transform:rotate(" + angle
                     + "deg);-moz-transform:rotate(" + angle + "deg);";
             }
-            var linetmtl = document.createElement("div");
-            linetmtl.className = "ninebox-line";
-            linetmtl.style.cssText = "box-sizing:border-box;position: absolute;" + transform + "left:" + x1 + "px;top:" +
-                y1 + "px;width:" + length + "px;-webkit-transform-origin: 0 100%;-moz-transform-origin: 0 100%;" +
-                "transform-origin: 0 100%;height:" + this.options.lineWidth + "px;background:" + this.options.lineColor + ";";
-            this.lineArray.push(linetmtl);
-            this.ele.append(linetmtl);
-            from.find("span").css({
-                "backgroundColor": this.options.lineColor,
-                "borderColor": this.options.lineColor
-            });
-            to.find("span").css({
-                "backgroundColor": this.options.lineColor,
-                "borderColor": this.options.lineColor
-            });
+            var cssText = "position: absolute;" + transform + "left:" + x1 + "px;top:" +
+                y1 + "px;width:" + length + "px;-webkit-transform-origin:center center;-moz-transform-origin: center center;" +
+                "transform-origin: center center;height:" + this.options.lineWidth + "px;background:" + this.options.lineColor + ";";
+            if (moveLine) {
+                this.moveLine || ((this.moveLine = document.createElement("div")) && this.ele.append(this.moveLine));
+                this.moveLine.style.cssText = cssText;
+            } else {
+                var linetmtl = document.createElement("div");
+                linetmtl.style.cssText = cssText;
+                this.lineArray.push(linetmtl);
+                this.ele.append(linetmtl);
+            }
         },
         removeLine: function () {
             for (var i = 0; i < this.lineArray.length; i++) {

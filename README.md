@@ -7,7 +7,7 @@ zindex: 100,//九宫格z-index属性
 roundRadii: 25,//圆环半径
 backgroundColor: "#333",//背景色
 color: "#FFFFFF",//圆环颜色
-nineBox: [1, 5, 3],//密码数组
+nineBox: [1, 8, 3],//密码数组，索引从1开始
 errorColor: '#FF0000',//解锁失败锁环颜色
 boxTimer: 1000,//错误时清除记录间隔
 lineColor: '#5B8FEF',//线颜色
