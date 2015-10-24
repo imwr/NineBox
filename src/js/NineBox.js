@@ -6,15 +6,16 @@
 ;
 (function ($) {
     var defaults = {
+        showMoveLine: true,//是否显示鼠标移动路径
         zindex: 100,//九宫格z-index属性
         roundRadii: 25,//圆环半径
         backgroundColor: "#333",//背景色
         color: "#FFFFFF",//圆环颜色
-        nineBox: [1, 8, 3],//密码数组
+        nineBox: [1, 5, 3],//密码数组
         errorColor: '#FF0000',//解锁失败锁环颜色
         boxTimer: 1000,//错误时清除记录间隔
         lineColor: '#5B8FEF',//线颜色
-        lineWidth: 6,//线宽度
+        lineWidth: 8,//线宽度
         width: 240,//容器宽度
         height: 240,//容器高度
         onError: function () {
@@ -43,15 +44,7 @@
     NineBox.prototype = {
         init: function () {
             this.options.pointRadii = this.options.lineWidth * 2 / 3;
-            this.ele.css({
-                "width": this.options.width,
-                "height": this.options.height,
-                "backgroundColor": this.options.backgroundColor,
-                "zindex": this.options.zindex,
-                "overflow": "hidden",
-                "position": "relative",
-                "webkitUserDrag": "none"
-            }).append(this.buildBox());
+            this.ele.css({"position": "relative"}).append(this.buildBox());
             this.lineArray = [];
             this.selectedArray = [];
             this._addMouseDownEvent();
@@ -62,11 +55,23 @@
                 return;
             }
             var temp = $(document.createDocumentFragment());
+            this.target = $(document.createElement("div")).css({
+                "width": this.options.width,
+                "height": this.options.height,
+                "backgroundColor": this.options.backgroundColor,
+                "zindex": this.options.zindex,
+                "overflow": "hidden",
+                "position": "relative",
+                "webkitUserDrag": "none"
+            });
             var imargin = this.options.roundRadii - this.options.pointRadii - 2;
             for (var i = 0; i < 9; i++) {
                 var dbox = $(document.createElement("li")).css({
                     cursor: "pointer",
-                    margin: this.options.width / 6 - this.options.roundRadii,
+                    marginLeft: this.options.width / 6 - this.options.roundRadii,
+                    marginRight: this.options.width / 6 - this.options.roundRadii,
+                    marginTop: this.options.height / 6 - this.options.roundRadii,
+                    marginBottom: this.options.height / 6 - this.options.roundRadii,
                     float: "left",
                     listStyleType: "none",
                     width: this.options.roundRadii * 2,
@@ -86,27 +91,33 @@
                     top: imargin,
                     left: imargin
                 });
-                temp.append(dbox.append(ibox));
+                temp.append(this.target.append(dbox.append(ibox)));
             }
             return temp;
         },
         _addMouseDownEvent: function () {
             var _this = this;
-            _this.ele.on("mousedown", "li", function () {
+            _this.target.on("mousedown", "li", function () {
                 if (!_this.nineBoxMouseDown) {
                     _this.nineBoxMouseDown = true;
-                    $(this).addClass('ninebox-selected').css('border-color', _this.options.lineColor).find("span").
-                        css("border-color", _this.options.lineColor);
+                    _this.nineBoxMouseUp = false;
+                    $(this).addClass('ninebox-selected').css('border-color', _this.options.lineColor)
+                        .find("span").css({
+                            "backgroundColor": _this.options.lineColor,
+                            "borderColor": _this.options.lineColor
+                        });
                     _this.selectedArray = [];
                     _this.selectedArray.push(this);
-                    _this._addMouseOverEvent();
+                    _this._addMouseMoveEvent();
                     _this._addMouseUpEvent();
                 }
             });
         },
         _addMouseUpEvent: function () {
             var _this = this;
-            $(this.ele).on("mouseup", function () {
+            $(this.target).on("mouseup", function () {
+                _this.moveLine && $(_this.moveLine).remove() && (_this.moveLine = null);
+                _this.nineBoxMouseUp = true;
                 if (_this.selectedArray.length == 0) {
                     return;
                 }
@@ -157,30 +168,42 @@
                 }
                 _this.ele.off("mouseup");
                 _this.ele.off("mousemove");
-                _this.ele.off("mouseover");
             });
         },
-        _addMouseOverEvent: function () {
+        _addMouseMoveEvent: function () {
             var _this = this;
-            _this.ele.on("mouseover", "li", function (e) {
-                _this.nineBoxMouseOver = true;
-                var _subthis = this;
-                var from = $(_this.selectedArray[_this.selectedArray.length - 1]);
-                if (!_this.nineBoxMouseDown || $(_subthis).hasClass('ninebox-selected')) {
+            _this.target.on("mousemove", function (e) {
+                if (!_this.nineBoxMouseDown || _this.nineBoxMouseUp) return;
+                var target = e.target || e.srcElement;
+                if (target.nodeName == "SPAN" || target.nodeName == "LI") {//圆环
+                    target.nodeName == "SPAN" && (target = target.parentNode);
+                    if ($(target).hasClass('ninebox-selected')) {
+                        return;
+                    }
+                    _this.moveLine && $(_this.moveLine).remove() && (_this.moveLine = null);
+                    $(target).addClass('ninebox-selected').css('border-color', _this.options.lineColor);
+                    var from = $(_this.selectedArray[_this.selectedArray.length - 1]);
+                    _this._createline(from.position(), $(target).position());
+                    from.find("span").css({
+                        "backgroundColor": _this.options.lineColor,
+                        "borderColor": _this.options.lineColor
+                    });
+                    $(target).find("span").css({
+                        "backgroundColor": _this.options.lineColor,
+                        "borderColor": _this.options.lineColor
+                    });
+                    _this.selectedArray.push(target);
                     return;
                 }
-                $(_subthis).addClass('ninebox-selected').css('border-color', _this.options.lineColor);
-                _this._createline(from.position(), $(_subthis).position());
-                from.find("span").css({
-                    "backgroundColor": _this.options.lineColor,
-                    "borderColor": _this.options.lineColor
-                });
-                $(_subthis).find("span").css({
-                    "backgroundColor": _this.options.lineColor,
-                    "borderColor": _this.options.lineColor
-                });
-                _this.selectedArray.push(_subthis);
-                _this.nineBoxMouseOver = false;
+                if (_this.options.showMoveLine) {
+                    //provisionally fix chrome offsetY
+                    if (e.offsetY < _this.options.height / 6) return;
+                    var preli = $(_this.selectedArray[_this.selectedArray.length - 1]);
+                    _this._createline(preli.position(), {
+                        left: (e.offsetX || (e.clientX - target.getBoundingClientRect().left)) - 40,
+                        top: (e.offsetY || (e.clientY - target.getBoundingClientRect().top)) - 40
+                    }, true);
+                }
             });
         },
         _createline: function (p1, p2, moveLine) {
@@ -191,7 +214,7 @@
                 angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
             var cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
             x1 = cx - length / 2 + this.options.width / 6;
-            y1 = cy - this.options.lineWidth / 2 + this.options.width / 6;
+            y1 = cy - this.options.lineWidth / 2 + this.options.height / 6;
 
             var transform = "";
             if (this.isIE) {
@@ -202,17 +225,17 @@
                 transform += "transform:rotate(" + angle + "deg);-webkit-transform:rotate(" + angle
                     + "deg);-moz-transform:rotate(" + angle + "deg);";
             }
-            var cssText = "position: absolute;" + transform + "left:" + x1 + "px;top:" +
+            var cssText = "border-radius:" + this.options.lineWidth / 2 + "px;position: absolute;" + transform + "left:" + x1 + "px;top:" +
                 y1 + "px;width:" + length + "px;-webkit-transform-origin:center center;-moz-transform-origin: center center;" +
                 "transform-origin: center center;height:" + this.options.lineWidth + "px;background:" + this.options.lineColor + ";";
             if (moveLine) {
-                this.moveLine || ((this.moveLine = document.createElement("div")) && this.ele.append(this.moveLine));
+                this.moveLine || ((this.moveLine = document.createElement("div")) && this.target.append(this.moveLine));
                 this.moveLine.style.cssText = cssText;
             } else {
                 var linetmtl = document.createElement("div");
                 linetmtl.style.cssText = cssText;
                 this.lineArray.push(linetmtl);
-                this.ele.append(linetmtl);
+                this.target.append(linetmtl);
             }
         },
         removeLine: function () {

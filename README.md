@@ -1,8 +1,9 @@
 # NineBox
-Nine Box —— 九宫格密码锁，（ie内核完善中）
+Nine Box —— 九宫格密码锁（ie内核完善中）
 
 ###options###
 ```html
+showMoveLine: true,//是否显示鼠标移动路径
 zindex: 100,//九宫格z-index属性
 roundRadii: 25,//圆环半径
 backgroundColor: "#333",//背景色
@@ -19,5 +20,6 @@ onError: function () {
 onSuc: function () {
 }//成功解锁执行的操作
 ```
-![image](https://github.com/imwr/NineBox/raw/master/favicon.ico)
-![image](favicon.ico)
+
+###snapshot###
+![image](snapshot/test.png)
