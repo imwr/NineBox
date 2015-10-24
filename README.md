@@ -1,5 +1,5 @@
-# NineBox（Development）
-Nine Box —— 九宫格密码锁，兼容chorome、ie等各类浏览器
+# NineBox
+Nine Box —— 九宫格密码锁，（ie内核完善中）
 
 ###options###
 ```html
