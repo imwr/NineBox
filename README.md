@@ -19,3 +19,4 @@ onError: function () {
 onSuc: function () {
 }//成功解锁执行的操作
 ```
+![image](https://raw.githubusercontent.com/imwr/NineBox/master/favicon.ico)
