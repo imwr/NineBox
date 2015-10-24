@@ -19,4 +19,5 @@ onError: function () {
 onSuc: function () {
 }//成功解锁执行的操作
 ```
-![image](https://raw.githubusercontent.com/imwr/NineBox/master/favicon.ico)
+![image](https://github.com/imwr/NineBox/raw/master/favicon.ico)
+![image](favicon.ico)
