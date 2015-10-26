@@ -12,7 +12,7 @@
         roundRadii: 25,//圆环半径
         backgroundColor: "#333",//背景色
         color: "#FFFFFF",//圆环颜色
-        nineBox: "123",//密码数组
+        pwd: "123",//密码数组
         errorColor: '#FF0000',//解锁失败锁环颜色
         boxTimer: 1000,//错误时清除记录间隔
         lineColor: '#5B8FEF',//线颜色
@@ -29,21 +29,23 @@
             var ui = $._data(this, "NineBox");
             if (!ui) {
                 var opts = $.extend({}, defaults, typeof method == 'object' && method);
-                if (opts.mode == "css3") {
-                    var style = document.createElement("div").style;
-                    var css = ["transform", "MozTransform", "webkitTransform", "OTransform"];
-                    for (var i in css) {
-                        if (typeof  style[css[i]] != "undefined") {
-                            ui = new NineBox(this, opts);
-                            break;
+                if ($.support.leadingWhitespace) {
+                    if (opts.mode == "css3") {
+                        var style = document.createElement("div").style;
+                        var css = ["transform", "WebkitTransform", "MozTransform", "msTransform", "OTransform"];
+                        for (var i in css) {
+                            if (typeof  style[css[i]] != "undefined") {
+                                ui = new NineBox(this, opts);
+                                break;
+                            }
                         }
+                    } else if (opts.mode == "cavas" && "getContext" in document.createElement('canvas')) {
+                        ui = new CavasNineBox(this, opts);
                     }
-                } else if ("getContext" in document.createElement('canvas')) {
-                    ui = new CavasNineBox(this, opts);
-                } else {
-                    return alert("mode is not support ! ie mode is development ~")
+                    $._data(this, "NineBox", ui);
+                } else { //ie6-8
+                    console.log("mode is not support ! ie mode is development ~")
                 }
-                $._data(this, "NineBox", ui);
             }
             if (typeof method === "string" && typeof ui[method] == "function") {
                 ui[method].apply(ui, arguments);
@@ -139,7 +141,7 @@
                 for (var i = 0; i < _this.selectedArray.length; i++) {
                     pwd += "" + (lis.index(_this.selectedArray[i]) + 1);
                 }
-                if (_this.options.nineBox.toString() == pwd) { //如果成功解锁
+                if (_this.options.pwd.toString() == pwd) { //如果成功解锁
                     if (typeof _this.options.onSuc == "function") {
                         _this.options.onSuc();
                     }
@@ -221,8 +223,6 @@
             });
         },
         _createline: function (p1, p2, moveLine) {
-            this.isIE = !$.support.leadingWhitespace;
-
             var x1 = p1.left, y1 = p1.top, x2 = p2.left, y2 = p2.top;
             var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)),
                 angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
@@ -230,18 +230,10 @@
             x1 = cx - length / 2 + this.options.width / 6;
             y1 = cy - this.options.lineWidth / 2 + this.options.height / 6;
 
-            var transform = "";
-            if (this.isIE) {
-                transform = "filter:progid:DXImageTransform.Microsoft.Matrix(M11=" + Math.cos(angle) +
-                    ",M12=" + -1 * Math.sin(angle) + ",M21=" + Math.sin(angle) + ",M22=" + Math.cos(angle) +
-                    ",SizingMethod='auto expand');overflow:auto;";
-            } else {
-                transform += "transform:rotate(" + angle + "deg);-webkit-transform:rotate(" + angle
-                    + "deg);-moz-transform:rotate(" + angle + "deg);";
-            }
-            var cssText = "border-radius:" + this.options.lineWidth / 2 + "px;position: absolute;" + transform + "left:" + x1 + "px;top:" +
-                y1 + "px;width:" + length + "px;-webkit-transform-origin:center center;-moz-transform-origin: center center;" +
-                "transform-origin: center center;height:" + this.options.lineWidth + "px;background:" + this.options.lineColor + ";";
+            var transform = "transform:rotate(" + angle + "deg);-webkit-transform:rotate(" + angle
+                    + "deg);-moz-transform:rotate(" + angle + "deg)";
+            var cssText = "border-radius:" + this.options.lineWidth / 2 + "px;position: absolute;" + transform + ";left:" + x1
+                + "px;top:" + y1 + "px;width:" + length + "px;height:" + this.options.lineWidth + "px;background:" + this.options.lineColor;
             if (moveLine) {
                 this.moveLine || ((this.moveLine = document.createElement("div")) && this.target.append(this.moveLine));
                 this.moveLine.style.cssText = cssText;
@@ -398,7 +390,7 @@
                 }
             }
 
-            if (that.result == that.options.nineBox) {
+            if (that.result == that.options.pwd) {
                 if (typeof that.options.onSuc == "function") {
                     that.options.onSuc();
                 }
