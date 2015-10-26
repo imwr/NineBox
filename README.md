@@ -1,9 +1,9 @@
 # NineBox
-Nine Box —— 九宫格密码锁（css3 or cavas mode）
+Nine Box —— 九宫格密码锁（css3 or canvas）
 
 ###options###
 ```html
-mode: "css3",// 渲染方式，css3 || cavas
+mode: "css3",// 渲染方式，css3 || canvas
 showMoveLine: true,//是否显示鼠标移动路径
 zindex: 100,//九宫格z-index属性
 roundRadii: 25,//圆环半径

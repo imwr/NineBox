@@ -7,7 +7,7 @@
 (function ($) {
     var defaults = {
         showMoveLine: true,//是否显示鼠标移动路径
-        mode: "css3",// 渲染方式，css3 || cavas || filter
+        mode: "css3",// 渲染方式，css3 || canvas
         zindex: 100,//九宫格z-index属性
         roundRadii: 25,//圆环半径
         backgroundColor: "#333",//背景色
@@ -39,7 +39,7 @@
                                 break;
                             }
                         }
-                    } else if (opts.mode == "cavas" && "getContext" in document.createElement('canvas')) {
+                    } else if (opts.mode == "canvas" && "getContext" in document.createElement('canvas')) {
                         ui = new CavasNineBox(this, opts);
                     }
                     $._data(this, "NineBox", ui);
