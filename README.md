@@ -24,3 +24,6 @@ onSuc: function () {
 
 ###snapshot###
 ![image](snapshot/test.png)
+
+###demo###
+See [here](http://tt-cc.cn/web/NineBox/example.html)
