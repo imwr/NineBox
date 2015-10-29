@@ -64,6 +64,8 @@
             this.lineArray = [];
             this.selectedArray = [];
             this._addMouseDownEvent();
+            this._addMouseMoveEvent();
+            this._addMouseUpEvent();
         },
         buildBox: function () {
             if (this.options.width < this.options.roundRadii * 6 || this.options.height < this.options.roundRadii * 6) {
@@ -78,6 +80,7 @@
                 "zindex": this.options.zindex,
                 "overflow": "hidden",
                 "position": "relative",
+                "webkitUserSelect": "none",
                 "webkitUserDrag": "none"
             });
             var imargin = this.options.roundRadii - this.options.pointRadii - 2;
@@ -113,7 +116,7 @@
         },
         _addMouseDownEvent: function () {
             var _this = this;
-            _this.target.on("mousedown", "li", function () {
+            _this.target.on("touchstart mousedown", "li", function () {
                 if (!_this.nineBoxMouseDown) {
                     _this.nineBoxMouseDown = true;
                     _this.nineBoxMouseUp = false;
@@ -124,14 +127,15 @@
                         });
                     _this.selectedArray = [];
                     _this.selectedArray.push(this);
-                    _this._addMouseMoveEvent();
-                    _this._addMouseUpEvent();
                 }
+            });
+            $(document).on("touchmove mousemove", {that: _this}, function (e) {
+                return !_this.nineBoxMouseDown;
             });
         },
         _addMouseUpEvent: function () {
             var _this = this;
-            $(this.target).on("mouseup", function () {
+            $(this.target).on("touchend mouseup", function () {
                 _this.moveLine && $(_this.moveLine).remove() && (_this.moveLine = null);
                 _this.nineBoxMouseUp = true;
                 if (_this.selectedArray.length == 0) {
@@ -182,18 +186,40 @@
                         _this.nineBoxMouseDown = false;
                     }, _this.options.boxTimer);
                 }
-                _this.ele.off("mouseup");
-                _this.ele.off("mousemove");
+                //_this.ele.off("mouseup touchend");
+                //_this.ele.off("mousemove touchmove");
             });
+        },
+        eleTouchMoveIn: function (e) {
+            if (e.type != "touchmove") {
+                return (e.target || e.srcElement);
+            }
+            var x = e.originalEvent.targetTouches[0].pageX,
+                y = e.originalEvent.targetTouches[0].pageY,
+                offsetX = x - this.target.offset().left,
+                offsetY = y - this.target.offset().top;
+            if (offsetX < 0 || offsetX > this.options.width || offsetY < 0 || offsetY > this.options.height) return null;
+            var index = Math.ceil(offsetX / (this.options.width / 3)),
+                indey = Math.ceil(offsetY / (this.options.height / 3));
+            var marginLeft = this.options.width / 6 - this.options.roundRadii,
+                marginTop = this.options.height / 6 - this.options.roundRadii,
+                lr = this.options.roundRadii * 2, num = 0;
+            var inCirle = false;
+            if (offsetX > (index * 2 - 1) * marginLeft + lr * (index - 1) && offsetX > (index * 2 - 1) * marginLeft + lr * (index - 1)) {
+                if (offsetY < (indey * 2 - 1) * marginTop + lr * indey && offsetY > (indey * 2 - 1) * marginTop + lr * (indey - 1)) {
+                    inCirle = true;
+                }
+            }
+            return inCirle ? this.target.find("li").eq(indey * 3 + index - 4)[0] : null;
         },
         _addMouseMoveEvent: function () {
             var _this = this;
-            _this.target.on("mousemove", function (e) {
+            _this.target.on("touchmove mousemove", function (e) {
                 if (!_this.nineBoxMouseDown || _this.nineBoxMouseUp) return;
-                var target = e.target || e.srcElement;
-                if (target.nodeName == "SPAN" || target.nodeName == "LI") {//圆环
+                var target = _this.eleTouchMoveIn(e);
+                if (target && (target.nodeName == "SPAN" || target.nodeName == "LI")) {//圆环
                     target.nodeName == "SPAN" && (target = target.parentNode);
-                    if ($(target).hasClass('ninebox-selected')) {
+                    if (target.className == 'ninebox-selected') {
                         return;
                     }
                     _this.moveLine && $(_this.moveLine).remove() && (_this.moveLine = null);
@@ -214,14 +240,24 @@
                 if (_this.options.showMoveLine) {
                     //provisionally fix chrome offsetY
                     if (e.offsetY < _this.options.height / 6) return;
-                    var preli = $(_this.selectedArray[_this.selectedArray.length - 1]);
+                    var preli = $(_this.selectedArray[_this.selectedArray.length - 1]), offsetX, offsetY
+                    if (e.type != "touchmove") {
+                        offsetX = e.offsetX || (e.clientX - target.getBoundingClientRect().left);
+                        offsetY = e.offsetY || (e.clientY - target.getBoundingClientRect().top);
+                    } else {
+                        var x = e.originalEvent.targetTouches[0].pageX,
+                            y = e.originalEvent.targetTouches[0].pageY;
+                        offsetX = x - _this.target.offset().left;
+                        offsetY = y - _this.target.offset().top;
+                    }
                     _this._createline(preli.position(), {
-                        left: (e.offsetX || (e.clientX - target.getBoundingClientRect().left)) - 40,
-                        top: (e.offsetY || (e.clientY - target.getBoundingClientRect().top)) - 40
+                        left: offsetX - 40,
+                        top: offsetY - 40
                     }, true);
                 }
             });
-        },
+        }
+        ,
         _createline: function (p1, p2, moveLine) {
             var x1 = p1.left, y1 = p1.top, x2 = p2.left, y2 = p2.top;
             var length = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)),
@@ -231,7 +267,7 @@
             y1 = cy - this.options.lineWidth / 2 + this.options.height / 6;
 
             var transform = "transform:rotate(" + angle + "deg);-webkit-transform:rotate(" + angle
-                    + "deg);-moz-transform:rotate(" + angle + "deg)";
+                + "deg);-moz-transform:rotate(" + angle + "deg)";
             var cssText = "border-radius:" + this.options.lineWidth / 2 + "px;position: absolute;" + transform + ";left:" + x1
                 + "px;top:" + y1 + "px;width:" + length + "px;height:" + this.options.lineWidth + "px;background:" + this.options.lineColor;
             if (moveLine) {
@@ -243,7 +279,8 @@
                 this.lineArray.push(linetmtl);
                 this.target.append(linetmtl);
             }
-        },
+        }
+        ,
         removeLine: function () {
             for (var i = 0; i < this.lineArray.length; i++) {
                 $(this.lineArray[i]).remove();
@@ -295,10 +332,12 @@
             this.$ctx.lineWidth = 2;
             for (var j = 0; j < 3; j++) {
                 for (var i = 0; i < 3; i++) {
-                    this.$ctx.moveTo(this.o / 2 + this.rr * 2 + i * (this.o + 2 * this.rr), this.oy / 2 + this.rr + j * (this.oy + 2 * this.rr));
+                    this.$ctx.moveTo(this.o / 2 + this.rr * 2 + i * (this.o + 2 * this.rr), this.oy / 2
+                        + this.rr + j * (this.oy + 2 * this.rr));
                     this.$ctx.arc(this.o / 2 + this.rr + i * (this.o + 2 * this.rr), this.oy / 2 +
                         this.rr + j * (this.oy + 2 * this.rr), this.rr, 0, 2 * Math.PI);
-                    var tem = new Point(this.o / 2 + this.rr + i * (this.o + 2 * this.rr), this.oy / 2 + this.rr + j * (this.oy + 2 * this.rr));
+                    var tem = new Point(this.o / 2 + this.rr + i * (this.o + 2 * this.rr), this.oy / 2
+                        + this.rr + j * (this.oy + 2 * this.rr));
                     if (that.pList.length < 9)
                         this.pList.push(tem);
                 }
@@ -417,6 +456,10 @@
                     that.initDraw()
                 }, that.options.boxTimer)
             }
+        });
+
+        $(document).on("touchmove mousemove", {that: that}, function (e) {
+            return !e.data.that.touched;
         });
 
         $(this.id).on('touchmove mousemove', {that: that}, function (e) {
