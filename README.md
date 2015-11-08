@@ -26,4 +26,4 @@ onSuc: function () {
 ![image](snapshot/test.png)
 
 ###demo###
-See [here](http://tt-cc.cn/front-end/item/11-ninebox)
+See [here](http://tt-cc.cn/front-end/jquery-plugins/ninebox)
