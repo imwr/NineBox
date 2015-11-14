@@ -9,7 +9,7 @@
         showMoveLine: true,//是否显示鼠标移动路径
         mode: "css3",// 渲染方式，css3 || canvas
         zindex: 100,//九宫格z-index属性
-        roundRadii: 25,//圆环半径
+        radius: 25,//圆环半径
         backgroundColor: "#333",//背景色
         color: "#FFFFFF",//圆环颜色
         pwd: "123",//密码数组
@@ -68,7 +68,7 @@
             this._addMouseUpEvent();
         },
         buildBox: function () {
-            if (this.options.width < this.options.roundRadii * 6 || this.options.height < this.options.roundRadii * 6) {
+            if (this.options.width < this.options.radius * 6 || this.options.height < this.options.radius * 6) {
                 console.log("圆环半径太大，容器装不下了~");
                 return;
             }
@@ -83,19 +83,19 @@
                 "webkitUserSelect": "none",
                 "webkitUserDrag": "none"
             });
-            var imargin = this.options.roundRadii - this.options.pointRadii - 2;
+            var imargin = this.options.radius - this.options.pointRadii - 2;
             for (var i = 0; i < 9; i++) {
                 var dbox = $(document.createElement("li")).css({
                     cursor: "pointer",
-                    marginLeft: this.options.width / 6 - this.options.roundRadii,
-                    marginRight: this.options.width / 6 - this.options.roundRadii,
-                    marginTop: this.options.height / 6 - this.options.roundRadii,
-                    marginBottom: this.options.height / 6 - this.options.roundRadii,
+                    marginLeft: this.options.width / 6 - this.options.radius,
+                    marginRight: this.options.width / 6 - this.options.radius,
+                    marginTop: this.options.height / 6 - this.options.radius,
+                    marginBottom: this.options.height / 6 - this.options.radius,
                     float: "left",
                     listStyleType: "none",
-                    width: this.options.roundRadii * 2,
-                    borderRadius: this.options.roundRadii,
-                    height: this.options.roundRadii * 2,
+                    width: this.options.radius * 2,
+                    borderRadius: this.options.radius,
+                    height: this.options.radius * 2,
                     position: "relative",
                     border: "2px solid " + this.options.color,
                     boxSizing: "border-box"
@@ -201,9 +201,9 @@
             if (offsetX < 0 || offsetX > this.options.width || offsetY < 0 || offsetY > this.options.height) return null;
             var index = Math.ceil(offsetX / (this.options.width / 3)),
                 indey = Math.ceil(offsetY / (this.options.height / 3));
-            var marginLeft = this.options.width / 6 - this.options.roundRadii,
-                marginTop = this.options.height / 6 - this.options.roundRadii,
-                lr = this.options.roundRadii * 2, num = 0;
+            var marginLeft = this.options.width / 6 - this.options.radius,
+                marginTop = this.options.height / 6 - this.options.radius,
+                lr = this.options.radius * 2, num = 0;
             var inCirle = false;
             if (offsetX > (index * 2 - 1) * marginLeft + lr * (index - 1) && offsetX > (index * 2 - 1) * marginLeft + lr * (index - 1)) {
                 if (offsetY < (indey * 2 - 1) * marginTop + lr * indey && offsetY > (indey * 2 - 1) * marginTop + lr * (indey - 1)) {
@@ -294,9 +294,9 @@
         this.options = options;
         var that = this;
         this.pr = this.options.lineWidth / 3;
-        this.rr = options.roundRadii;
-        this.o = (options.width / 6 - options.roundRadii) * 2;
-        this.oy = (options.height / 6 - options.roundRadii) * 2;
+        this.rr = options.radius;
+        this.o = (options.width / 6 - options.radius) * 2;
+        this.oy = (options.height / 6 - options.radius) * 2;
         this.color = options.color;
         //全局样式
         this.$element.css({

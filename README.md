@@ -6,7 +6,7 @@ Nine Box —— 九宫格密码锁（css3 or canvas）
 mode: "css3",// 渲染方式，css3 || canvas
 showMoveLine: true,//是否显示鼠标移动路径
 zindex: 100,//九宫格z-index属性
-roundRadii: 25,//圆环半径
+radius: 25,//圆环半径
 backgroundColor: "#333",//背景色
 color: "#FFFFFF",//圆环颜色
 pwd: "123",//密码串，索引从1开始
