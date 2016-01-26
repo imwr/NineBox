@@ -1,8 +1,9 @@
-/**
- * @author wr
+/* =========================================================== *
+ * @site http:tt-cc.cn
  * @email mvpjly@163.com
- * @date 2014/10/21
- */
+ * Copyright 2014 imwr
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * =========================================================== */
 ;
 (function ($) {
     var defaults = {
@@ -265,7 +266,6 @@
             var cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
             x1 = cx - length / 2 + this.options.width / 6;
             y1 = cy - this.options.lineWidth / 2 + this.options.height / 6;
-
             var transform = "transform:rotate(" + angle + "deg);-webkit-transform:rotate(" + angle
                 + "deg);-moz-transform:rotate(" + angle + "deg)";
             var cssText = "border-radius:" + this.options.lineWidth / 2 + "px;position: absolute;" + transform + ";left:" + x1
@@ -288,7 +288,6 @@
             this.lineArray = [];
         }
     };
-
     var CavasNineBox = function (element, options) {
         this.$element = $(element);
         this.options = options;
@@ -307,26 +306,21 @@
             "overflow": "hidden",
             "cursor": "default"
         });
-
         //选择器规范
         if (!$(element).attr("id"))
             $(element).attr("id", (Math.random() * 65535).toString());
         this.id = "#" + $(element).attr("id");
-
         var Point = function (x, y) {
             this.x = x;
             this.y = y
         };
-
         this.result = "";
         this.pList = [];
         this.sList = [];
         this.tP = new Point(0, 0);
-
         this.$element.append('<canvas class="main-c" width="' + options.width + '" height="' + options.height + '" >');
         this.$c = $(this.id + " .main-c")[0];
         this.$ctx = this.$c.getContext('2d');
-
         this.initDraw = function () {
             this.$ctx.strokeStyle = this.color;
             this.$ctx.lineWidth = 2;
@@ -354,7 +348,6 @@
             }
             return 0;
         };
-
         this.pointDraw = function (c) {
             if (arguments.length > 0) {
                 that.$ctx.strokeStyle = c;
@@ -382,7 +375,6 @@
                 }
             }
         };
-
         this.allDraw = function (c) {
             if (arguments.length > 0) {
                 this.pointDraw(c);
@@ -393,7 +385,6 @@
                 this.lineDraw();
             }
         };
-
         this.draw = function (x, y) {
             that.$ctx.clearRect(0, 0, that.options.width, that.options.height);
             that.$ctx.beginPath();
@@ -403,7 +394,6 @@
             that.$ctx.lineTo(x, y);
             that.$ctx.stroke();
         };
-
         this.pointInList = function (poi, list) {
             for (var p in list) {
                 if (poi["x"] == list[p]["x"] && poi["y"] == list[p]["y"]) {
@@ -412,7 +402,6 @@
             }
             return false;
         };
-
         this.touched = false;
         $(this.id).on("mousedown touchstart", {that: that}, function (e) {
             e.data.that.touched = true;
@@ -428,7 +417,6 @@
                     e.data.that.result = e.data.that.result + (e.data.that.pointInList(that.sList[p], e.data.that.pList)).toString();
                 }
             }
-
             if (that.result == that.options.pwd) {
                 if (typeof that.options.onSuc == "function") {
                     that.options.onSuc();
@@ -457,11 +445,9 @@
                 }, that.options.boxTimer)
             }
         });
-
         $(document).on("touchmove mousemove", {that: that}, function (e) {
             return !e.data.that.touched;
         });
-
         $(this.id).on('touchmove mousemove', {that: that}, function (e) {
             if (e.data.that.touched) {
                 var x = e.pageX || e.originalEvent.targetTouches[0].pageX;
