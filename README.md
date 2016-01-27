@@ -10,6 +10,7 @@ radius: 25,//圆环半径
 backgroundColor: "#333",//背景色
 color: "#FFFFFF",//圆环颜色
 pwd: "123",//密码串，索引从1开始
+encrypt: false, //是否加密密码（需要引入box.encrypt.js）, 控制栏 CryptoJS.SHA3("your pwd").toString() 获得密码串
 errorColor: '#FF0000',//解锁失败锁环颜色
 boxTimer: 1000,//错误时清除记录间隔
 lineColor: '#5B8FEF',//线颜色
