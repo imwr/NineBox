@@ -26,6 +26,7 @@
         }//成功解锁执行的操作
     };
     $.fn.nineBoxCanvas = function (method) {
+        var arg = arguments;
         return this.each(function () {
             var ui = $._data(this, "NineBoxCanvas");
             if (!ui) {
@@ -40,7 +41,7 @@
                 }
             }
             if (typeof method === "string" && typeof ui[method] == "function") {
-                ui[method].apply(ui, arguments);
+                ui[method].apply(ui, Array.prototype.slice.call(args, 1));
             }
         });
     };

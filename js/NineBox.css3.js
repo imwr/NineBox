@@ -17,6 +17,7 @@
         errorColor: '#FF0000',//解锁失败锁环颜色
         boxTimer: 1000,//错误时清除记录间隔
         lineColor: '#5B8FEF',//线颜色
+        extClass: null,//额外的样式
         lineWidth: 8,//线宽度
         width: 240,//容器宽度
         height: 240,//容器高度
@@ -26,6 +27,7 @@
         }//成功解锁执行的操作
     };
     $.fn.nineBox = function (method) {
+        var args = arguments;
         return this.each(function () {
             var ui = $._data(this, "NineBox");
             if (!ui) {
@@ -45,7 +47,7 @@
                 }
             }
             if (typeof method === "string" && typeof ui[method] == "function") {
-                ui[method].apply(ui, arguments);
+                ui[method].apply(ui, Array.prototype.slice.call(args, 1));
             }
         });
     };
@@ -82,7 +84,7 @@
                 "position": "relative",
                 "webkitUserSelect": "none",
                 "webkitUserDrag": "none"
-            });
+            }).addClass(this.options.extClass);
             var imargin = this.options.radius - this.options.pointRadii - 2;
             for (var i = 0; i < 9; i++) {
                 var dbox = $(document.createElement("li")).css({
