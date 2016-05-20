@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <title>Nine Box —— 九宫格密码锁</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312"/>
+    <meta name="keywords" content="tt-cc"/>
+    <meta name="description" content="tt-cc"/>
+    <meta http-equiv="Cache-Control" content="no-transform "/>
+    <link rel="shortcut icon" href="http://imwr.github.io/resources/favicon.ico">
+    <link rel="bookmark" href="http://imwr.github.io/resources/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="http://imwr.github.io/resources/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="http://imwr.github.io/resources/css/github-example.css">
+    <script type="text/javascript" src="http://imwr.github.io/resources/js/jquery-1.11.3.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://imwr.github.io/resources/syntax/shCoreDefault.css"/>
+
+    <script src="lib/box.encrypt.js"></script>
+    <script src="js/NineBox.css3.js"></script>
+    <script src="js/NineBox.canvas.js"></script>
+</head>
+<body>
+<header>
+    <div class="main-inner">
+        <a href="https://github.com/imwr/NineBox" target="_blank" class="button">
+            <small>View project on</small>
+            GitHub</a>
+
+        <h1>Imwr</h1>
+    </div>
+</header>
+<section class="main-inner">
+    <div class="paper-title">Demo1:</div>
+    <div class="paper-tips">right password is 1 → 2 → 3</div>
+    <div class="paper-div">
+        <div id="demo1"></div>
+    </div>
+    <div class="paper-sep"></div>
+
+    <div class="paper-title">Demo2:</div>
+    <div class="paper-tips">right password is L ：1 → 4 → 7 → 8 → 9</div>
+    <div class="paper-div">
+        <div id="demo2"></div>
+    </div>
+    <div class="paper-sep"></div>
+
+    <div class="paper-title">Demo3:</div>
+    <div class="paper-div">
+        <div id="demo3"></div>
+    </div>
+    <div class="paper-sep"></div>
+
+    <div class="paper-title paper-specil" id="options">options:</div>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th width="15%">参数名</th>
+            <th width="15%">类型</th>
+            <th width="20%">默认值</th>
+            <th width="50%">说明</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>showMoveLine</td>
+            <td>boolean</td>
+            <td>true</td>
+            <td>是否显示鼠标移动路径</td>
+        </tr>
+        <tr>
+            <td>mode</td>
+            <td>string</td>
+            <td>css3</td>
+            <td>渲染方式，css3 || canvas</td>
+        </tr>
+        <tr>
+            <td>zindex</td>
+            <td>number</td>
+            <td>100</td>
+            <td>九宫格z-index属性</td>
+        </tr>
+        <tr>
+            <td>radius</td>
+            <td>number</td>
+            <td>25</td>
+            <td>圆环半径</td>
+        </tr>
+        <tr>
+            <td>backgroundColor</td>
+            <td>string</td>
+            <td>#333</td>
+            <td>九宫格背景色</td>
+        </tr>
+        <tr>
+            <td>color</td>
+            <td>string</td>
+            <td>#FFF</td>
+            <td>圆环颜色</td>
+        </tr>
+        <tr>
+            <td>pwd</td>
+            <td>string</td>
+            <td>123</td>
+            <td>密码数组</td>
+        </tr>
+        <tr>
+            <td>encrypt</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否加密密码（需要引入box.encrypt.js）<br/>
+                控制栏 CryptoJS.SHA3("your pwd").toString() 获得密码串</td>
+        </tr>
+        <tr>
+            <td>errorColor</td>
+            <td>string</td>
+            <td>#FF0000</td>
+            <td>解锁失败锁环颜色</td>
+        </tr>
+        <tr>
+            <td>boxTimer</td>
+            <td>number</td>
+            <td>1000</td>
+            <td>错误时清除记录间隔</td>
+        </tr>
+        <tr>
+            <td>lineColor</td>
+            <td>string</td>
+            <td>#5B8FEF</td>
+            <td>连线颜色</td>
+        </tr>
+        <tr>
+            <td>extClass</td>
+            <td>string</td>
+            <td></td>
+            <td>额外的样式</td>
+        </tr>
+        <tr>
+            <td>lineWidth</td>
+            <td>number</td>
+            <td>8</td>
+            <td>连线宽度</td>
+        </tr>
+        <tr>
+            <td>width</td>
+            <td>number</td>
+            <td>240</td>
+            <td>容器宽度</td>
+        </tr>
+        <tr>
+            <td>height</td>
+            <td>number</td>
+            <td>240</td>
+            <td>容器高度</td>
+        </tr>
+        <tr>
+            <td>onError</td>
+            <td>function</td>
+            <td>null</td>
+            <td>密码错误执行的操作</td>
+        </tr>
+        <tr>
+            <td>onSuc</td>
+            <td>function</td>
+            <td>null</td>
+            <td>密码成功执行的操作</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+<script type="text/javascript" src="http://imwr.github.io/resources/syntax/shCore.js"></script>
+<script type="text/javascript" src="http://imwr.github.io/resources/syntax/shBrushJScriptAndXml.js"></script>
+<script type="text/javascript" src="http://imwr.github.io/resources/js/github-example.js"></script>
+<script type="text/javascript" id="js1">
+    $("#demo1").nineBox({
+        onSuc: function () {
+            alert("suc")
+        },
+        onError: function () {
+            console.log("wrong")
+        }
+    });
+</script>
+<script type="text/javascript" id="js2">
+    $("#demo2").nineBox({
+        width: 300,
+        height: 300,
+        radius: 30,
+        lineWidth: 16,
+        color: "#5B8FEF",
+        lineColor: "yellow",
+        pwd: "0f0700af1444071f764943425c43f40da378a1474fc604368be028c67" +
+        "38272eb8df828a37633726fb8367d993a3675d8835934b250641e22e0c2da17057f66ca",
+        encrypt : true,
+        onSuc: function () {
+            alert("suc")
+        },
+        onError: function () {
+            console.log("wrong")
+        }
+    });
+</script>
+<script type="text/javascript" id="js3">
+    $("#demo3").nineBoxCanvas({
+        mode: "canvas",
+        onSuc: function () {
+            alert("suc")
+        },
+        onError: function () {
+            console.log("wrong")
+        }
+    })
+</script>
+<section class="main-inner">
+    <br/>
+    <!-- JiaThis Button BEGIN -->
+    <div class="jiathis_style">
+        <span class="jiathis_txt">分享到：</span>
+        <a class="jiathis_button_weixin">微信</a>
+        <a class="jiathis_button_tsina">新浪微博</a>
+        <a class="jiathis_button_qzone">QQ空间</a>
+        <a class="jiathis_button_cqq">QQ好友</a>
+        <a class="jiathis_button_fav">收藏夹</a>
+        <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis"
+           target="_blank">更多</a>
+    </div>
+    <script type="text/javascript">
+        var jiathis_config = {
+            summary: "",
+            shortUrl: false,
+            hideMore: false
+        }
+    </script>
+    <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+    <!-- JiaThis Button END -->
+    <br/>
+    <br/>
+    <div id="disqus_thread"></div>
+</section>
+<script>
+    var disqus_config = function () {
+        this.page.url = location.href; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = location.pathname; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function () { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = '//tt-cc.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+</body>
+</html>
